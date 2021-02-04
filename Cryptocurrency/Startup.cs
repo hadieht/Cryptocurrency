@@ -1,8 +1,11 @@
 ﻿using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Services;
+using Cryptocurrency.Services.Proxy;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using Serilog;
 using System.Collections.Generic;
 using System.IO;
 
@@ -16,6 +19,8 @@ namespace Cryptocurrency
 			var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 			config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 			Configuration = config.Build();
+
+
 		}
 		public static ServiceProvider ConfigureServices()
 		{
@@ -35,6 +40,18 @@ namespace Cryptocurrency
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
 
 			services.AddScoped<IAppMain, AppMain>();
+
+			services.AddScoped<ICryptoMarketService, CryptoMarketService>();
+
+			var serilogLogger = new LoggerConfiguration()
+																									.ReadFrom.Configuration(Configuration)
+																									.CreateLogger();
+
+			services.AddLogging(builder =>
+			{
+				builder.SetMinimumLevel(LogLevel.Information);
+				builder.AddSerilog(logger: serilogLogger, dispose: true);
+			});
 
 			return services.BuildServiceProvider();
 		}

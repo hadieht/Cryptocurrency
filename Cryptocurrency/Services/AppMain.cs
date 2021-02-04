@@ -7,7 +7,6 @@ namespace Cryptocurrency.Services
 	public class AppMain : IAppMain
 	{
 
-
 		private readonly ILogger logger;
 
 		public AppMain(ILogger<AppMain> logger)
@@ -16,6 +15,8 @@ namespace Cryptocurrency.Services
 		}
 		public async Task Start()
 		{
+			logger.LogError("error");
+			logger.LogInformation("info");
 			await MainMenuAsync();
 
 		}

@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services.Proxy
 {
-	public class CryptoMarketService
+	public class CryptoMarketService : ICryptoMarketService
 	{
 		private readonly HttpClient client;
 		private readonly IJsonSerializer jsonSerializer;
