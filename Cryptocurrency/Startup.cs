@@ -1,0 +1,43 @@
+﻿using Cryptocurrency.Domain.AppConfig;
+using Cryptocurrency.Services;
+using Cryptocurrency.Shared;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
+using System.IO;
+
+namespace Cryptocurrency
+{
+	public static class Startup
+	{
+		public static IConfiguration Configuration { get; }
+		static Startup()
+		{
+			var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
+			config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+			Configuration = config.Build();
+		}
+		public static ServiceProvider ConfigureServices()
+		{
+			var services = new ServiceCollection();
+
+			services.AddHttpClient();
+
+			var coinMarketCapSettingSection = Configuration.GetSection("CoinMarketCapSetting");
+			services.Configure<CoinMarketCapSetting>(coinMarketCapSettingSection);
+
+			var exchangeratesApiSettingSection = Configuration.GetSection("ExchangeratesApiSetting");
+			services.Configure<ExchangeratesApiSetting>(exchangeratesApiSettingSection);
+
+			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
+			services.Configure<List<SupportiveCurrencies>>(supportiveCurrencies);
+
+			services.AddSingleton<IJsonSerializer, JsonSerializer>();
+
+			services.AddScoped<IAppMain, AppMain>();
+
+			return services.BuildServiceProvider();
+		}
+
+	}
+}
