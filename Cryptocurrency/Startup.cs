@@ -39,6 +39,7 @@ namespace Cryptocurrency
 
 			
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
+			services.AddSingleton<Cache>();
 
 			services.AddScoped<IAppMain, AppMain>();
 			services.AddScoped<ICryptoMarketProxyService, CryptoMarketProxyService>();
