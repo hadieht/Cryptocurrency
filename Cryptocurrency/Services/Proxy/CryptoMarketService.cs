@@ -1,8 +1,11 @@
 ﻿using Cryptocurrency.Domain.ApiResponse;
 using Cryptocurrency.Domain.AppConfig;
+using Cryptocurrency.Domain.Dto;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
@@ -28,7 +31,7 @@ namespace Cryptocurrency.Services.Proxy
 			this.config = config;
 		}
 
-		public async Task<CryptoMapInfo> GetCryptoMap()
+		public async Task<List<CryptoNameDto>> GetCryptoMap()
 		{
 			var response = await client.GetAsync(config.Value.MapApiUrl).ConfigureAwait(false);
 			if (response.StatusCode != System.Net.HttpStatusCode.OK)
@@ -36,7 +39,15 @@ namespace Cryptocurrency.Services.Proxy
 				logger.LogError("Error on Get Crypto List");
 				return null;
 			}
-			var result = await jsonSerializer.DeserializeHttpContent<CryptoMapInfo>(response.Content);
+
+			var data = await jsonSerializer.DeserializeHttpContent<CryptoMapInfo>(response.Content);
+
+			var result = data.Data.Select(a => new CryptoNameDto
+			{
+				Symbol = a.Symbol,
+				Name = a.Name
+			}).ToList();
+
 			return result;
 		}
 

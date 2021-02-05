@@ -37,6 +37,7 @@ namespace Cryptocurrency
 			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
 			services.Configure<List<SupportiveCurrencies>>(supportiveCurrencies);
 
+	
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
 
 			services.AddScoped<IAppMain, AppMain>();
