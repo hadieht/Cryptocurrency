@@ -36,15 +36,16 @@ namespace Cryptocurrency.Services
 				return false;
 			else
 			{
-				//var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
-				//if (!isValid)
-				//{
-				//	Console.WriteLine("Enterid Name Not Valid!");
-				//	return true;
-				//}
+				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
+				if (!isValid)
+				{
+					Console.WriteLine("Enterid Symbol Not Valid!");
+					logger.LogDebug("Currency Symbol Validate failed");
+					return true;
+				}
 
 				var info = await cryptocurrencyDetail.ShowInfo(input);
-				Console.WriteLine("Result : ");
+				Console.WriteLine("Result:");
 
 				foreach (var item in info)
 				{

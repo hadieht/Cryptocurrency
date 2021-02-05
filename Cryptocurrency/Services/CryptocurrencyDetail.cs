@@ -12,7 +12,6 @@ namespace Cryptocurrency.Services
 {
 	public class CryptocurrencyDetail : ICryptocurrencyDetail
 	{
-		private readonly IJsonSerializer jsonSerializer;
 		private readonly ILogger<CryptocurrencyDetail> logger;
 		private readonly IExchangeRateProxyService exchangeRateProxyService;
 		private readonly ICryptoMarketProxyService cryptoMarketProxyService;
@@ -20,11 +19,9 @@ namespace Cryptocurrency.Services
 
 		public CryptocurrencyDetail(IExchangeRateProxyService exchangeRateProxyService,
 																ICryptoMarketProxyService cryptoMarketProxyService,
-																IJsonSerializer jsonSerializer,
 																ILogger<CryptocurrencyDetail> logger,
 																IOptions<SupportiveCurrenciesSetting> config)
 		{
-			this.jsonSerializer = jsonSerializer;
 			this.logger = logger;
 			this.exchangeRateProxyService = exchangeRateProxyService;
 			this.cryptoMarketProxyService = cryptoMarketProxyService;
@@ -33,6 +30,8 @@ namespace Cryptocurrency.Services
 
 		public async Task<bool> IsCryptoCurrencyNameValid(string symbol)
 		{
+			logger.LogDebug($"Validate Currency Name {symbol}");
+
 			var allName = await cryptoMarketProxyService.GetCryptoMap();
 
 			if (allName.Where(t => t.Symbol.ToLower() == symbol).Any())
@@ -44,9 +43,13 @@ namespace Cryptocurrency.Services
 		}
 		public async Task<List<ShowCryptoPrices>> ShowInfo(string symbol)
 		{
+			logger.LogDebug($"Show Currency Info {symbol}");
+
 			var result = new List<ShowCryptoPrices>();
 
 			var rates = await exchangeRateProxyService.GetExchangeRate();
+
+			logger.LogDebug($"Exchange Rate Count {rates.Rates.Count()}");
 
 			var latestPrice = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
 
