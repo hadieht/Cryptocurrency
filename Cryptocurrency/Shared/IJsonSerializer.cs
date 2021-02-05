@@ -8,5 +8,6 @@ namespace Cryptocurrency.Shared
 		T Deserialize<T>(string value);
 		Task<T> DeserializeHttpContent<T>(HttpContent content);
 		string Serialize<T>(T data);
+		T DeserializeByNewtonsoft<T>(string value);
 	}
 }

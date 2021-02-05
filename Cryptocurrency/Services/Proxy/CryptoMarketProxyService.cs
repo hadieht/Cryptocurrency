@@ -2,14 +2,10 @@
 using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
 using Cryptocurrency.Domain.Enum;
-using Cryptocurrency.Domain.Mapping;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
-using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
@@ -84,28 +80,20 @@ namespace Cryptocurrency.Services.Proxy
 			return result;
 		}
 
-		public async Task<CryptoLatestPriceDto> GetCryptoLatestPrice(string symbole)
+		public async Task<decimal> GetCryptoLatestPrice(string symbole)
 		{
-			var result = new CryptoLatestPriceDto();
 			try
 			{
 				var response = await client.GetAsync(config.Value.LatestPriceApiUrl + "?symbol=" + symbole).ConfigureAwait(false);
 				if (response.StatusCode != System.Net.HttpStatusCode.OK)
 				{
-					logger.LogError($"Error on Get GetCryptoLatestPrice with Status Code : {response.StatusCode}");
-					return null;
+					logger.LogError($"Error on Get Get Crypto Latest Price API with Status Code : {response.StatusCode}");
+					return 0;
 				}
 
 				var json = await response.Content.ReadAsStringAsync();
 
-				dynamic oa = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject>(json);
-
-
-				logger.LogDebug($"Executing GetCryptoLatestPrice ");
-
-				//result.Name = data.Data.Btc.Name;
-				//result.Symbol = data.Data.Btc.Symbol;
-				//result.Price = data.Data.Btc.Quote.Usd.Price;
+				return ExtractPriceFromDynamicJson(json);
 
 			}
 			catch (Exception ex)
@@ -113,8 +101,44 @@ namespace Cryptocurrency.Services.Proxy
 				logger.LogError(ex, "Error on GetCryptoLatestPrice! ");
 			}
 
-			return result;
+			return 0;
 		}
 
+		private decimal ExtractPriceFromDynamicJson(string json)
+		{
+			logger.LogDebug($"Begin Extract price from json : {json}");
+
+			try
+			{
+				dynamic root = jsonSerializer.DeserializeByNewtonsoft<ExpandoObject>(json);
+
+				var rootDic = (IDictionary<string, object>)root;
+
+				var dataNode = rootDic.FirstOrDefault(a => a.Key.ToLower() == "data").Value;
+
+				var FirstNode = (IDictionary<string, object>)dataNode;
+
+				var cryptoNode = FirstNode.Values.FirstOrDefault();
+
+				var cryptoDict = (IDictionary<string, object>)cryptoNode;
+
+				var cryptoQuote = cryptoDict.FirstOrDefault(b => b.Key.ToLower() == "quote").Value;
+
+				var quoteDict = (IDictionary<string, object>)cryptoQuote;
+
+				var firstCurrency = quoteDict.Values.FirstOrDefault();
+
+				var pricesDict = (IDictionary<string, object>)firstCurrency;
+
+				var price = pricesDict.FirstOrDefault(b => b.Key.ToLower() == "price").Value;
+
+				return Convert.ToDecimal(price);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Error on Extract Price From DynamicJson! ");
+			}
+			return 0;
+		}
 	}
 }

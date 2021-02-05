@@ -4,10 +4,8 @@ using Cryptocurrency.Services.Proxy;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services
@@ -18,13 +16,13 @@ namespace Cryptocurrency.Services
 		private readonly ILogger<CryptocurrencyDetail> logger;
 		private readonly IExchangeRateProxyService exchangeRateProxyService;
 		private readonly ICryptoMarketProxyService cryptoMarketProxyService;
-		private readonly IOptions<SupportiveCurrencies> config;
+		private readonly IOptions<SupportiveCurrenciesSetting> config;
 
 		public CryptocurrencyDetail(IExchangeRateProxyService exchangeRateProxyService,
 																ICryptoMarketProxyService cryptoMarketProxyService,
 																IJsonSerializer jsonSerializer,
 																ILogger<CryptocurrencyDetail> logger,
-																IOptions<SupportiveCurrencies> config)
+																IOptions<SupportiveCurrenciesSetting> config)
 		{
 			this.jsonSerializer = jsonSerializer;
 			this.logger = logger;
@@ -44,20 +42,22 @@ namespace Cryptocurrency.Services
 
 			return false;
 		}
-		public async Task<ShowCryptoFiat> ShowInfo(string symbol)
+		public async Task<List<ShowCryptoPrices>> ShowInfo(string symbol)
 		{
-			var result = new Dictionary<string, decimal>();
+			var result = new List<ShowCryptoPrices>();
 
 			var rates = await exchangeRateProxyService.GetExchangeRate();
 
 			var latestPrice = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
 
-			//foreach (var currency in config.Value.Titles)
-			//{
+			foreach (var currency in config.Value.Currencies.Split(","))
+			{
+				var rate = rates.Rates[currency];
 
-			//}
+				result.Add(new ShowCryptoPrices { Symbol = currency, Price = rate * latestPrice });
+			}
 
-			return new ShowCryptoFiat { Fiats = result };
+			return result;
 
 		}
 

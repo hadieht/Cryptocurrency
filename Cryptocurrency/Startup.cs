@@ -35,9 +35,8 @@ namespace Cryptocurrency
 			services.Configure<ExchangeratesApiSetting>(exchangeratesApiSettingSection);
 
 			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
-			services.Configure<List<SupportiveCurrencies>>(supportiveCurrencies);
+			services.Configure<SupportiveCurrenciesSetting>(supportiveCurrencies);
 
-			
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
 			services.AddSingleton<Cache>();
 

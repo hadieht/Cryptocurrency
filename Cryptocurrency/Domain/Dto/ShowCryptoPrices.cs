@@ -1,8 +1,8 @@
 ﻿namespace Cryptocurrency.Domain.Dto
 {
-	public class CryptoNameDto
+	public class ShowCryptoPrices
 	{
-		public string Name { get; set; }
+		public decimal Price { get; set; }
 		public string Symbol { get; set; }
 	}
 }

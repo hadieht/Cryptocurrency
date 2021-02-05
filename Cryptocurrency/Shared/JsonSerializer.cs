@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using Newtonsoft.Json;
+using System.Net.Http;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -34,5 +35,11 @@ namespace Cryptocurrency.Shared
 		{
 			return System.Text.Json.JsonSerializer.Serialize<T>(data, setting);
 		}
+
+		public T DeserializeByNewtonsoft<T>(string value)
+		{
+			return JsonConvert.DeserializeObject<T>(value);
+		}
+
 	}
 }
