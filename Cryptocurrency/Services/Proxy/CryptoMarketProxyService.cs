@@ -41,33 +41,43 @@ namespace Cryptocurrency.Services.Proxy
 		public async Task<List<CryptoNameDto>> GetCryptoMap()
 		{
 			var result = new List<CryptoNameDto>();
-
-			if (!cache.CacheData.TryGetValue(CacheKey.CryptocurrencyList, out result))
+			try
 			{
-				var response = await client.GetAsync(config.Value.MapApiUrl).ConfigureAwait(false);
-				if (response.StatusCode != System.Net.HttpStatusCode.OK)
+				if (!cache.CacheData.TryGetValue(CacheKey.CryptocurrencyList, out result))
 				{
-					logger.LogError("Error on Get Crypto List");
-					return null;
+					var response = await client.GetAsync(config.Value.MapApiUrl).ConfigureAwait(false);
+					if (response.StatusCode != System.Net.HttpStatusCode.OK)
+					{
+						logger.LogError($"Error on Get Crypto List with Staus Code : {response.StatusCode}");
+						return null;
+					}
+
+					var data = await jsonSerializer.DeserializeHttpContent<CryptoMapResponse>(response.Content);
+
+					logger.LogDebug($"Executing GetCryptoMap: {data.Data?.Count()}.");
+
+					result = data.Data.Select(a => new CryptoNameDto
+					{
+						Symbol = a.Symbol,
+						Name = a.Name
+					}).ToList();
+
+					var cacheEntryOptions = new MemoryCacheEntryOptions()
+							.SetSlidingExpiration(TimeSpan.FromHours(1))
+							.SetSize(1024);
+
+					logger.LogDebug("Set crypto list In cache data");
+
+					cache.CacheData.Set(CacheKey.CryptocurrencyList, result, cacheEntryOptions);
 				}
 
-				var data = await jsonSerializer.DeserializeHttpContent<CryptoMapResponse>(response.Content);
-
-				result = data.Data.Select(a => new CryptoNameDto
-				{
-					Symbol = a.Symbol,
-					Name = a.Name
-				}).ToList();
-
-				var cacheEntryOptions = new MemoryCacheEntryOptions()
-						.SetSlidingExpiration(TimeSpan.FromHours(1)).
-						SetSize(1024);
-
-				cache.CacheData.Set(CacheKey.CryptocurrencyList, result, cacheEntryOptions);
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Error on GetCryptoMap! ");
 			}
 
 			return result;
 		}
-
 	}
 }

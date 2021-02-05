@@ -18,13 +18,11 @@ namespace Cryptocurrency.Services
 		}
 		public async Task Start()
 		{
-
 			bool showMenu = true;
 			while (showMenu)
 			{
 				showMenu = await MainMenu();
 			}
-
 		}
 
 		private async Task<bool> MainMenu()
@@ -43,7 +41,7 @@ namespace Cryptocurrency.Services
 					return true;
 				}
 				Console.WriteLine("Enterid Name Is Correct");
-
+				Console.WriteLine("*********************************************************");
 				return true;
 			}
 
