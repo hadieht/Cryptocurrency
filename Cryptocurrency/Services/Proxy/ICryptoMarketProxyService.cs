@@ -1,5 +1,4 @@
-﻿using Cryptocurrency.Domain.ApiResponse;
-using Cryptocurrency.Domain.Dto;
+﻿using Cryptocurrency.Domain.Dto;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 

@@ -7,7 +7,7 @@ namespace Cryptocurrency
 	class Program
 	{
 		static async Task Main(string[] args)
-		{		
+		{
 			var sp = Startup.ConfigureServices();
 			var applicationService = sp.GetService<IAppMain>();
 			await applicationService.Start();

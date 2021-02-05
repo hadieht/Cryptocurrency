@@ -4,9 +4,7 @@ using Cryptocurrency.Services.Proxy;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Cryptocurrency

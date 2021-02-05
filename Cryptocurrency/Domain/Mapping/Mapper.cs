@@ -1,12 +1,8 @@
-﻿using Cryptocurrency.Domain.Dto;
-using System;
+﻿using Cryptocurrency.Domain.ApiResponse;
+using Cryptocurrency.Domain.Dto;
+using Mapster;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Mapster;
-using MapsterMapper;
-using Cryptocurrency.Domain.ApiResponse;
 
 namespace Cryptocurrency.Domain.Mapping
 {

@@ -13,5 +13,5 @@ namespace Cryptocurrency.Domain.ApiResponse
 		public string Symbol { get; set; }
 		public int Rank { get; set; }
 	}
-	
+
 }

@@ -1,7 +1,6 @@
 ﻿using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
 using Cryptocurrency.Services.Proxy;
-using Cryptocurrency.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Collections.Generic;
