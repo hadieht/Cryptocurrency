@@ -1,6 +1,7 @@
 ﻿using Cryptocurrency.Domain.ApiResponse;
 using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
+using Cryptocurrency.Domain.Mapping;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -11,17 +12,17 @@ using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services.Proxy
 {
-	public class CryptoMarketService : ICryptoMarketService
+	public class CryptoMarketProxyService : ICryptoMarketProxyService
 	{
 		private readonly HttpClient client;
 		private readonly IJsonSerializer jsonSerializer;
 		private readonly ILogger logger;
 		private readonly IOptions<CoinMarketCapSetting> config;
 
-		public CryptoMarketService(IHttpClientFactory httpClientFactory,
+		public CryptoMarketProxyService(IHttpClientFactory httpClientFactory,
 															IOptions<CoinMarketCapSetting> config,
 															IJsonSerializer jsonSerializer,
-															ILogger<CryptoMarketService> logger)
+															ILogger<CryptoMarketProxyService> logger)
 		{
 			this.client = httpClientFactory.CreateClient();
 			this.client.DefaultRequestHeaders.Add("Accepts", "application/json");
@@ -40,7 +41,7 @@ namespace Cryptocurrency.Services.Proxy
 				return null;
 			}
 
-			var data = await jsonSerializer.DeserializeHttpContent<CryptoMapInfo>(response.Content);
+			var data = await jsonSerializer.DeserializeHttpContent<CryptoMapResponse>(response.Content);
 
 			var result = data.Data.Select(a => new CryptoNameDto
 			{

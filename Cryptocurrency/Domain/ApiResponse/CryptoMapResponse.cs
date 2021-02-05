@@ -2,7 +2,7 @@
 
 namespace Cryptocurrency.Domain.ApiResponse
 {
-	public class CryptoMapInfo
+	public class CryptoMapResponse
 	{
 		public IEnumerable<CrypoData> Data { get; set; }
 	}

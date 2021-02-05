@@ -1,5 +1,6 @@
 ﻿using Cryptocurrency.Services.Proxy;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services
@@ -7,26 +8,45 @@ namespace Cryptocurrency.Services
 	public class AppMain : IAppMain
 	{
 		private readonly ILogger logger;
-		private readonly ICryptoMarketService cryptoMarketService;
+		private readonly ICryptocurrencyDetail cryptocurrencyCalculator;
 
-		public AppMain(ILogger<AppMain> logger , ICryptoMarketService cryptoMarketService)
+		public AppMain(ILogger<AppMain> logger,
+									 ICryptocurrencyDetail cryptocurrencyCalculator)
 		{
 			this.logger = logger;
-			this.cryptoMarketService = cryptoMarketService;
+			this.cryptocurrencyCalculator = cryptocurrencyCalculator;
 		}
 		public async Task Start()
 		{
-		
-			//var x = await cryptoMarketService.GetCryptoMap();
 
-			await MainMenuAsync();
+			bool showMenu = true;
+			while (showMenu)
+			{
+				showMenu = await MainMenu();
+			}
 
 		}
 
-		private async Task<bool> MainMenuAsync()
+		private async Task<bool> MainMenu()
 		{
+			Console.WriteLine("Enter a Cryptocurrency Name OR Q for Exit: ");
 
-			return true;
+			var input = Console.ReadLine().ToLower();
+			if (input == "q")
+				return false;
+			else
+			{
+				var isValid = await cryptocurrencyCalculator.IsCryptoCurrencyNameValid(input);
+				if (!isValid)
+				{
+					Console.WriteLine("Enterid Name Not Valid!");
+					return true;
+				}
+				Console.WriteLine("Enterid Name Is Correct");
+
+				return true;
+			}
+
 		}
 	}
 }

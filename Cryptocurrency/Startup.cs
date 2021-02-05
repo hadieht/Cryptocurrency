@@ -37,12 +37,13 @@ namespace Cryptocurrency
 			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
 			services.Configure<List<SupportiveCurrencies>>(supportiveCurrencies);
 
-	
+			
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
 
 			services.AddScoped<IAppMain, AppMain>();
-
-			services.AddScoped<ICryptoMarketService, CryptoMarketService>();
+			services.AddScoped<ICryptoMarketProxyService, CryptoMarketProxyService>();
+			services.AddScoped<IExchangeRateProxyService, ExchangeRateProxyService>();
+			services.AddScoped<ICryptocurrencyDetail, CryptocurrencyDetail>();
 
 			var serilogLogger = new LoggerConfiguration()
 																									.ReadFrom.Configuration(Configuration)
@@ -50,7 +51,6 @@ namespace Cryptocurrency
 
 			services.AddLogging(builder =>
 			{
-				builder.SetMinimumLevel(LogLevel.Information);
 				builder.AddSerilog(logger: serilogLogger, dispose: true);
 			});
 

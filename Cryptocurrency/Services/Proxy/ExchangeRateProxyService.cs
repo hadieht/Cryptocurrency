@@ -1,0 +1,50 @@
+﻿using Cryptocurrency.Domain.ApiResponse;
+using Cryptocurrency.Domain.AppConfig;
+using Cryptocurrency.Domain.Dto;
+using Cryptocurrency.Domain.Mapping;
+using Cryptocurrency.Shared;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace Cryptocurrency.Services.Proxy
+{
+	public class ExchangeRateProxyService : IExchangeRateProxyService
+	{
+		private readonly HttpClient client;
+		private readonly IJsonSerializer jsonSerializer;
+		private readonly ILogger logger;
+		private readonly IOptions<ExchangeratesApiSetting> config;
+
+		public ExchangeRateProxyService(IHttpClientFactory httpClientFactory,
+																		IOptions<ExchangeratesApiSetting> config,
+																		IJsonSerializer jsonSerializer,
+																		ILogger<CryptoMarketProxyService> logger)
+		{
+			this.client = httpClientFactory.CreateClient();
+			this.jsonSerializer = jsonSerializer;
+			this.logger = logger;
+			this.config = config;
+		}
+
+		public async Task<ExchangeRateDto> GetExchangeRate()
+		{
+			var response = await client.GetAsync(config.Value.ApiUrl).ConfigureAwait(false);
+			if (response.StatusCode != System.Net.HttpStatusCode.OK)
+			{
+				logger.LogError("Error on Get Crypto List");
+				return null;
+			}
+
+			var data = await jsonSerializer.DeserializeHttpContent<ExchangeratesApiResponse>(response.Content);
+
+			return data.ToDto();
+
+		}
+	}
+}

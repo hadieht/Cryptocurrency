@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services.Proxy
 {
-	public interface ICryptoMarketService
+	public interface ICryptoMarketProxyService
 	{
 		Task<List<CryptoNameDto>> GetCryptoMap();
 	}
