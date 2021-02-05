@@ -7,8 +7,12 @@ using Cryptocurrency.Shared;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -24,10 +28,10 @@ namespace Cryptocurrency.Services.Proxy
 		private readonly Cache cache;
 
 		public CryptoMarketProxyService(IHttpClientFactory httpClientFactory,
-															IOptions<CoinMarketCapSetting> config,
-															IJsonSerializer jsonSerializer,
-															ILogger<CryptoMarketProxyService> logger,
-															Cache cache)
+																		IOptions<CoinMarketCapSetting> config,
+																		IJsonSerializer jsonSerializer,
+																		ILogger<CryptoMarketProxyService> logger,
+																		Cache cache)
 		{
 			this.client = httpClientFactory.CreateClient();
 			this.client.DefaultRequestHeaders.Add("Accepts", "application/json");
@@ -79,5 +83,38 @@ namespace Cryptocurrency.Services.Proxy
 
 			return result;
 		}
+
+		public async Task<CryptoLatestPriceDto> GetCryptoLatestPrice(string symbole)
+		{
+			var result = new CryptoLatestPriceDto();
+			try
+			{
+				var response = await client.GetAsync(config.Value.LatestPriceApiUrl + "?symbol=" + symbole).ConfigureAwait(false);
+				if (response.StatusCode != System.Net.HttpStatusCode.OK)
+				{
+					logger.LogError($"Error on Get GetCryptoLatestPrice with Status Code : {response.StatusCode}");
+					return null;
+				}
+
+				var json = await response.Content.ReadAsStringAsync();
+
+				dynamic oa = Newtonsoft.Json.JsonConvert.DeserializeObject<ExpandoObject>(json);
+
+
+				logger.LogDebug($"Executing GetCryptoLatestPrice ");
+
+				//result.Name = data.Data.Btc.Name;
+				//result.Symbol = data.Data.Btc.Symbol;
+				//result.Price = data.Data.Btc.Quote.Usd.Price;
+
+			}
+			catch (Exception ex)
+			{
+				logger.LogError(ex, "Error on GetCryptoLatestPrice! ");
+			}
+
+			return result;
+		}
+
 	}
 }

@@ -1,10 +1,12 @@
-﻿using System.Threading.Tasks;
+﻿using Cryptocurrency.Domain.Dto;
+using System.Threading.Tasks;
 
 namespace Cryptocurrency.Services
 {
 	public interface ICryptocurrencyDetail
 	{
-		Task<bool> IsCryptoCurrencyNameValid(string title);
-		Task<bool> CaculateInfo();
+		Task<bool> IsCryptoCurrencyNameValid(string symbol);
+		Task<ShowCryptoFiat> ShowInfo(string symbol);
+
 	}
 }

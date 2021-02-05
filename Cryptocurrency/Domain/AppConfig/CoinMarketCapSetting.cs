@@ -10,6 +10,7 @@ namespace Cryptocurrency.Domain.AppConfig
 	{
 		public string ApiKey { get; set; }
 		public string MapApiUrl { get; set; }
+		public string LatestPriceApiUrl { get; set; }
 
 	}
 }

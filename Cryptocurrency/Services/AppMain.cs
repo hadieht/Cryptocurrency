@@ -8,13 +8,13 @@ namespace Cryptocurrency.Services
 	public class AppMain : IAppMain
 	{
 		private readonly ILogger logger;
-		private readonly ICryptocurrencyDetail cryptocurrencyCalculator;
+		private readonly ICryptocurrencyDetail  cryptocurrencyDetail;
 
 		public AppMain(ILogger<AppMain> logger,
-									 ICryptocurrencyDetail cryptocurrencyCalculator)
+									 ICryptocurrencyDetail cryptocurrencyDetail)
 		{
 			this.logger = logger;
-			this.cryptocurrencyCalculator = cryptocurrencyCalculator;
+			this.cryptocurrencyDetail = cryptocurrencyDetail;
 		}
 		public async Task Start()
 		{
@@ -34,12 +34,14 @@ namespace Cryptocurrency.Services
 				return false;
 			else
 			{
-				var isValid = await cryptocurrencyCalculator.IsCryptoCurrencyNameValid(input);
+				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
 				if (!isValid)
 				{
 					Console.WriteLine("Enterid Name Not Valid!");
 					return true;
 				}
+				var info = await cryptocurrencyDetail.ShowInfo(input);
+
 				Console.WriteLine("Enterid Name Is Correct");
 				Console.WriteLine("*********************************************************");
 				return true;

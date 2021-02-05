@@ -1,7 +1,9 @@
-﻿namespace Cryptocurrency.Domain.AppConfig
+﻿using System.Collections.Generic;
+
+namespace Cryptocurrency.Domain.AppConfig
 {
 	public class SupportiveCurrencies
 	{
-		public string Title { get; set; }
+		public List<string> Titles { get; set; }
 	}
 }
