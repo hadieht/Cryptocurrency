@@ -21,13 +21,13 @@ namespace Cryptocurrency.Services.Proxy
 		private readonly IJsonSerializer jsonSerializer;
 		private readonly ILogger logger;
 		private readonly IOptions<CoinMarketCapSetting> config;
-		private readonly Cache cache;
+		private readonly IMemoryCache cache;
 
 		public CryptoMarketProxyService(IHttpClientFactory httpClientFactory,
 																		IOptions<CoinMarketCapSetting> config,
 																		IJsonSerializer jsonSerializer,
 																		ILogger<CryptoMarketProxyService> logger,
-																		Cache cache)
+																		IMemoryCache cache)
 		{
 			this.client = httpClientFactory.CreateClient();
 			this.client.DefaultRequestHeaders.Add("Accepts", "application/json");
@@ -43,7 +43,7 @@ namespace Cryptocurrency.Services.Proxy
 			var result = new List<CryptoNameDto>();
 			try
 			{
-				if (!cache.CacheData.TryGetValue(CacheKey.CryptocurrencyList, out result))
+				if (!cache.TryGetValue(CacheKey.CryptocurrencyList, out result))
 				{
 					var apiResponse = await client.GetAsync(config.Value.MapApiUrl).ConfigureAwait(false);
 					if (apiResponse.StatusCode != System.Net.HttpStatusCode.OK)
@@ -62,13 +62,10 @@ namespace Cryptocurrency.Services.Proxy
 						Name = a.Name
 					}).ToList();
 
-					var cacheEntryOptions = new MemoryCacheEntryOptions()
-							.SetSlidingExpiration(TimeSpan.FromHours(1))
-							.SetSize(1024);
 
 					logger.LogDebug("Set crypto list In cache data");
 
-					cache.CacheData.Set(CacheKey.CryptocurrencyList, result, cacheEntryOptions);
+					cache.Set(CacheKey.CryptocurrencyList, result);
 				}
 
 			}

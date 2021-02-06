@@ -2,6 +2,7 @@
 using Cryptocurrency.Services;
 using Cryptocurrency.Services.Proxy;
 using Cryptocurrency.Shared;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -36,7 +37,6 @@ namespace Cryptocurrency
 			services.Configure<SupportiveCurrenciesSetting>(supportiveCurrencies);
 
 			services.AddSingleton<IJsonSerializer, JsonSerializer>();
-			services.AddSingleton<Cache>();
 
 			services.AddScoped<IAppMain, AppMain>();
 			services.AddScoped<ICryptoMarketProxyService, CryptoMarketProxyService>();
@@ -46,7 +46,7 @@ namespace Cryptocurrency
 			var serilogLogger = new LoggerConfiguration()
 																									.ReadFrom.Configuration(Configuration)
 																									.CreateLogger();
-
+			services.AddMemoryCache();
 			services.AddLogging(builder =>
 			{
 				builder.AddSerilog(logger: serilogLogger, dispose: true);
