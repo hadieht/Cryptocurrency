@@ -4,6 +4,7 @@
 	{
 		GeneralError,
 		NotFound,
-		ApiCallError
+		ApiCallError,
+		BlankNotValid
 	}
 }

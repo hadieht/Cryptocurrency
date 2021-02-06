@@ -32,16 +32,16 @@ namespace Cryptocurrency.Services.Proxy
 
 		public async Task<ServiceResult<ExchangeRateDto>> GetExchangeRate()
 		{
-			var response = await client.GetAsync(config.Value.ApiUrl).ConfigureAwait(false);
-			if (response.StatusCode != System.Net.HttpStatusCode.OK)
+			var apiResponse = await client.GetAsync(config.Value.ApiUrl).ConfigureAwait(false);
+			if (apiResponse.StatusCode != System.Net.HttpStatusCode.OK)
 			{
 				logger.LogError("Error on Get Crypto List");
 				return new ServiceResult<ExchangeRateDto>(new ErrorResult { Type = ErrorType.ApiCallError });
 			}
 
-			var data = await jsonSerializer.DeserializeHttpContent<ExchangeratesApiResponse>(response.Content);
+			var exchangeRates = await jsonSerializer.DeserializeHttpContent<ExchangeratesApiResponse>(apiResponse.Content);
 
-			return new ServiceResult<ExchangeRateDto>(data.ToDto());
+			return new ServiceResult<ExchangeRateDto>(exchangeRates.ToDto());
 
 		}
 	}

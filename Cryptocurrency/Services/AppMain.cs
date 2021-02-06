@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Cryptocurrency.Domain.Enum;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 
@@ -36,10 +37,18 @@ namespace Cryptocurrency.Services
 			else
 			{
 				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
+
 				if (!isValid.Success)
 				{
-					logger.LogError("Error on call Is Valid");
-					Console.WriteLine("Problem on get data occured!");
+					if (isValid.Error.Type == ErrorType.BlankNotValid)
+					{
+						Console.WriteLine("Empty Not Valid");
+					}
+					else
+					{
+						logger.LogError("Error on call Is Valid");
+						Console.WriteLine("Problem on get data occured!");
+					}
 					return true;
 				}
 
@@ -55,8 +64,15 @@ namespace Cryptocurrency.Services
 
 				if (!info.Success || info.Result == null)
 				{
-					logger.LogError("Error on get crypto info");
-					Console.WriteLine("Problem on get data occured!");
+					if (isValid.Error.Type == ErrorType.BlankNotValid)
+					{
+						Console.WriteLine("Empty Not Valid");
+					}
+					else
+					{
+						logger.LogError("Error on get crypto info");
+						Console.WriteLine("Problem on get data occured!");
+					}
 					return true;
 				}
 

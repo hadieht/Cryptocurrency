@@ -31,16 +31,21 @@ namespace Cryptocurrency.Services
 
 		public async Task<ServiceResult<bool>> IsCryptoCurrencyNameValid(string symbol)
 		{
+			if (string.IsNullOrWhiteSpace(symbol))
+			{
+				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.BlankNotValid });
+			}
+
 			logger.LogDebug($"Validate Currency Name {symbol}");
 
-			var allName = await cryptoMarketProxyService.GetCryptocurrencyList();
+			var cryptocurrensieTitles = await cryptoMarketProxyService.GetCryptocurrencyList();
 
-			if(!allName.Success || allName.Result == null)
+			if(!cryptocurrensieTitles.Success || cryptocurrensieTitles.Result == null)
 			{
 				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			if (allName.Result.Where(t => t.Symbol.ToLower() == symbol).Any())
+			if (cryptocurrensieTitles.Result.Where(t => t.Symbol.ToLower() == symbol).Any())
 			{
 				return new ServiceResult<bool>(true);
 			}
@@ -49,35 +54,40 @@ namespace Cryptocurrency.Services
 		}
 		public async Task<ServiceResult<ShowCryptoPrices>> ShowCryptoPrices(string symbol)
 		{
+			if (string.IsNullOrWhiteSpace(symbol))
+			{
+				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.BlankNotValid });
+			}
+
 			logger.LogDebug($"Show Currency Info {symbol}");
 
 			var result = new ShowCryptoPrices();
 
-			var rates = await exchangeRateProxyService.GetExchangeRate();
+			var exchangeRates = await exchangeRateProxyService.GetExchangeRate();
 
-			if (!rates.Success || rates.Result == null)
+			if (!exchangeRates.Success || exchangeRates.Result == null)
 			{
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			logger.LogDebug($"Exchange Rate Count {rates.Result.Rates.Count()}");
+			logger.LogDebug($"Exchange Rate Count {exchangeRates.Result.Rates.Count()}");
 
-			var info = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
+			var cryptoCaltestInfo = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
 
-			if (!info.Success || info.Result == null)
+			if (!cryptoCaltestInfo.Success || cryptoCaltestInfo.Result == null)
 			{
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			result.Name = info.Result.Name;
-			result.Symbol = info.Result.Symbol;
-			result.LastUpdated = info.Result.LastUpdated;
+			result.Name = cryptoCaltestInfo.Result.Name;
+			result.Symbol = cryptoCaltestInfo.Result.Symbol;
+			result.LastUpdated = cryptoCaltestInfo.Result.LastUpdated;
 			result.CurrenciesRates = new List<CurrenciesRate>();
 
 			foreach (var currency in config.Value.Currencies.Split(","))
 			{
-				var rate = rates.Result.Rates[currency];
-				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * info.Result.Price });
+				var rate = exchangeRates.Result.Rates[currency];
+				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * cryptoCaltestInfo.Result.Price });
 			}
 
 			return new ServiceResult<ShowCryptoPrices>(result);
