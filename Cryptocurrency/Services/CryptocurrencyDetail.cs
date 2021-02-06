@@ -40,23 +40,27 @@ namespace Cryptocurrency.Services
 
 			return false;
 		}
-		public async Task<List<ShowCryptoPrices>> ShowInfo(string symbol)
+		public async Task<ShowCryptoPrices> ShowCryptoPrices(string symbol)
 		{
 			logger.LogDebug($"Show Currency Info {symbol}");
 
-			var result = new List<ShowCryptoPrices>();
+			var result = new ShowCryptoPrices();
 
 			var rates = await exchangeRateProxyService.GetExchangeRate();
 
 			logger.LogDebug($"Exchange Rate Count {rates.Rates.Count()}");
 
-			var latestPrice = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
+			var info = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
+
+			result.Name = info.Name;
+			result.Symbol = info.Symbol;
+			result.LastUpdated = info.LastUpdated;
+			result.CurrenciesRates = new List<CurrenciesRate>();
 
 			foreach (var currency in config.Value.Currencies.Split(","))
 			{
 				var rate = rates.Rates[currency];
-
-				result.Add(new ShowCryptoPrices { Symbol = currency, Price = rate * latestPrice });
+				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * info.Price });
 			}
 
 			return result;

@@ -7,7 +7,7 @@ namespace Cryptocurrency.Services
 	public interface ICryptocurrencyDetail
 	{
 		Task<bool> IsCryptoCurrencyNameValid(string symbol);
-		Task<List<ShowCryptoPrices>> ShowInfo(string symbol);
+		Task<ShowCryptoPrices> ShowCryptoPrices(string symbol);
 
 	}
 }

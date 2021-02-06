@@ -7,6 +7,6 @@ namespace Cryptocurrency.Services.Proxy
 	public interface ICryptoMarketProxyService
 	{
 		Task<List<CryptoNameDto>> GetCryptoMap();
-		Task<decimal> GetCryptoLatestPrice(string symbole);
+		Task<CryptoPrices> GetCryptoLatestPrice(string symbole);
 	}
 }

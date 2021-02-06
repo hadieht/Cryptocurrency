@@ -80,65 +80,39 @@ namespace Cryptocurrency.Services.Proxy
 			return result;
 		}
 
-		public async Task<decimal> GetCryptoLatestPrice(string symbole)
+		public async Task<CryptoPrices> GetCryptoLatestPrice(string symbole)
 		{
+			var result = new CryptoPrices();
 			try
 			{
 				var response = await client.GetAsync(config.Value.LatestPriceApiUrl + "?symbol=" + symbole).ConfigureAwait(false);
 				if (response.StatusCode != System.Net.HttpStatusCode.OK)
 				{
 					logger.LogError($"Error on Get Get Crypto Latest Price API with Status Code : {response.StatusCode}");
-					return 0;
+					return null;
 				}
 
 				var json = await response.Content.ReadAsStringAsync();
 
-				return ExtractPriceFromDynamicJson(json);
+				var info = jsonSerializer.DeserializeByNewtonsoft<CryptocurrencyPriceResponse>(json);
+				var mainData = info.DataItems.FirstOrDefault().Value;
+				result.Name = mainData.name;
+				result.Symbol = mainData.symbol;
+				result.LastUpdated = mainData.last_updated;
 
+				var priceInfo = mainData.quotes.FirstOrDefault().Value;
+
+				result.Price = priceInfo.price;
+				return result;
 			}
 			catch (Exception ex)
 			{
 				logger.LogError(ex, "Error on GetCryptoLatestPrice! ");
 			}
 
-			return 0;
+			return null;
 		}
 
-		private decimal ExtractPriceFromDynamicJson(string json)
-		{
-			logger.LogDebug($"Begin Extract price from json : {json}");
 
-			try
-			{
-				dynamic root = jsonSerializer.DeserializeByNewtonsoft<ExpandoObject>(json);
-
-				var rootDic = (IDictionary<string, object>)root;
-
-				var dataNode = rootDic.FirstOrDefault(a => a.Key.ToLower() == "data").Value;
-
-				var FirstNode = (IDictionary<string, object>)dataNode;
-
-				var cryptoNode = FirstNode.Values.FirstOrDefault();
-
-				var cryptoDict = (IDictionary<string, object>)cryptoNode;
-
-				var cryptoQuote = cryptoDict.FirstOrDefault(b => b.Key.ToLower() == "quote").Value;
-
-				var quoteDict = (IDictionary<string, object>)cryptoQuote;
-
-				var firstCurrency = quoteDict.Values.FirstOrDefault();
-
-				var pricesDict = (IDictionary<string, object>)firstCurrency;
-
-				var price = pricesDict.FirstOrDefault(b => b.Key.ToLower() == "price").Value;
-
-				return Convert.ToDecimal(price);
-			}
-			catch (Exception ex)
-			{
-				logger.LogError(ex, "Error on Extract Price From DynamicJson! ");
-			}
-			return 0;
-		}
 	}
 }

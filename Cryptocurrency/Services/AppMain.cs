@@ -28,7 +28,7 @@ namespace Cryptocurrency.Services
 
 		private async Task<bool> MainMenu()
 		{
-			Console.WriteLine("Enter a Cryptocurrency Symbol OR Q for Exit: ");
+			Console.Write("Enter a Cryptocurrency Symbol (Q=Exit) : ");
 
 			var input = Console.ReadLine().ToLower();
 			if (input == "q")
@@ -40,15 +40,18 @@ namespace Cryptocurrency.Services
 				{
 					Console.WriteLine("Enterid Symbol Not Valid!");
 					logger.LogDebug("Currency Symbol Validate failed");
+					Console.WriteLine("*********************************************************");
 					return true;
 				}
 
-				var info = await cryptocurrencyDetail.ShowInfo(input);
+				var info = await cryptocurrencyDetail.ShowCryptoPrices(input);
 				Console.WriteLine("Result:");
 
-				foreach (var item in info)
+				Console.WriteLine($"Name = {info.Name}  Symbol = {info.Symbol}  Last Update = {info.LastUpdated}");
+
+				foreach (var item in info.CurrenciesRates)
 				{
-					Console.WriteLine($"{item.Symbol}  = {string.Format("{0:0.######}", item.Price)}");
+					Console.WriteLine($"{item.Currency}  = {string.Format("{0:0.######}", item.Price)}");
 				}
 				Console.WriteLine("*********************************************************");
 				return true;
