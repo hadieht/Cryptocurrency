@@ -28,7 +28,7 @@ namespace Cryptocurrency.Services
 
 		private async Task<bool> MainMenu()
 		{
-			Console.Write("Enter a Cryptocurrency Symbol (Q=Exit) : ");
+			Console.Write("Enter a Cryptocurrency Symbol (Q = Exit) : ");
 
 			var input = Console.ReadLine().ToLower();
 			if (input == "q")
@@ -36,7 +36,14 @@ namespace Cryptocurrency.Services
 			else
 			{
 				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
-				if (!isValid)
+				if (!isValid.Success)
+				{
+					logger.LogError("Error on call Is Valid");
+					Console.WriteLine("Problem on get data occured!");
+					return true;
+				}
+
+				if (!isValid.Result)
 				{
 					Console.WriteLine("Enterid Symbol Not Valid!");
 					logger.LogDebug("Currency Symbol Validate failed");
@@ -45,11 +52,19 @@ namespace Cryptocurrency.Services
 				}
 
 				var info = await cryptocurrencyDetail.ShowCryptoPrices(input);
+
+				if (!info.Success || info.Result == null)
+				{
+					logger.LogError("Error on get crypto info");
+					Console.WriteLine("Problem on get data occured!");
+					return true;
+				}
+
 				Console.WriteLine("Result:");
 
-				Console.WriteLine($"Name = {info.Name}  Symbol = {info.Symbol}  Last Update = {info.LastUpdated}");
+				Console.WriteLine($"Name = {info.Result.Name}  Symbol = {info.Result.Symbol}  Last Update = {info.Result.LastUpdated}");
 
-				foreach (var item in info.CurrenciesRates)
+				foreach (var item in info.Result.CurrenciesRates)
 				{
 					Console.WriteLine($"{item.Currency}  = {string.Format("{0:0.######}", item.Price)}");
 				}

@@ -12,9 +12,14 @@ namespace Cryptocurrency.Domain.ApiResponse
 
 	public class DataItem
 	{
-		public string name { get; set; }
-		public string symbol { get; set; }
-		public DateTime last_updated { get; set; }
+		[JsonProperty(PropertyName = "name")]
+		public string Name { get; set; }
+
+		[JsonProperty(PropertyName = "symbol")]
+		public string Symbol { get; set; }
+
+		[JsonProperty(PropertyName = "last_updated")]
+		public DateTime LastUpdated { get; set; }
 
 		[JsonProperty(PropertyName = "quote")]
 		public Dictionary<string, QuotesItems> quotes { get; set; }
@@ -23,7 +28,8 @@ namespace Cryptocurrency.Domain.ApiResponse
 
 	public class QuotesItems
 	{
-		public decimal price { get; set; }
+		[JsonProperty(PropertyName = "price")]
+		public decimal Price { get; set; }
 
 	}
 }

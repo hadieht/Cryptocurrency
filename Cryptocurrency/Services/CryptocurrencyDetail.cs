@@ -1,5 +1,7 @@
-﻿using Cryptocurrency.Domain.AppConfig;
+﻿using Cryptocurrency.Domain;
+using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
+using Cryptocurrency.Domain.Enum;
 using Cryptocurrency.Services.Proxy;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -27,20 +29,25 @@ namespace Cryptocurrency.Services
 			this.config = config;
 		}
 
-		public async Task<bool> IsCryptoCurrencyNameValid(string symbol)
+		public async Task<ServiceResult<bool>> IsCryptoCurrencyNameValid(string symbol)
 		{
 			logger.LogDebug($"Validate Currency Name {symbol}");
 
-			var allName = await cryptoMarketProxyService.GetCryptoMap();
+			var allName = await cryptoMarketProxyService.GetCryptocurrencyList();
 
-			if (allName.Where(t => t.Symbol.ToLower() == symbol).Any())
+			if(!allName.Success || allName.Result == null)
 			{
-				return true;
+				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			return false;
+			if (allName.Result.Where(t => t.Symbol.ToLower() == symbol).Any())
+			{
+				return new ServiceResult<bool>(true);
+			}
+
+			return new ServiceResult<bool>(false);
 		}
-		public async Task<ShowCryptoPrices> ShowCryptoPrices(string symbol)
+		public async Task<ServiceResult<ShowCryptoPrices>> ShowCryptoPrices(string symbol)
 		{
 			logger.LogDebug($"Show Currency Info {symbol}");
 
@@ -48,22 +55,32 @@ namespace Cryptocurrency.Services
 
 			var rates = await exchangeRateProxyService.GetExchangeRate();
 
-			logger.LogDebug($"Exchange Rate Count {rates.Rates.Count()}");
+			if (!rates.Success || rates.Result == null)
+			{
+				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
+			}
+
+			logger.LogDebug($"Exchange Rate Count {rates.Result.Rates.Count()}");
 
 			var info = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
 
-			result.Name = info.Name;
-			result.Symbol = info.Symbol;
-			result.LastUpdated = info.LastUpdated;
+			if (!info.Success || info.Result == null)
+			{
+				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
+			}
+
+			result.Name = info.Result.Name;
+			result.Symbol = info.Result.Symbol;
+			result.LastUpdated = info.Result.LastUpdated;
 			result.CurrenciesRates = new List<CurrenciesRate>();
 
 			foreach (var currency in config.Value.Currencies.Split(","))
 			{
-				var rate = rates.Rates[currency];
-				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * info.Price });
+				var rate = rates.Result.Rates[currency];
+				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * info.Result.Price });
 			}
 
-			return result;
+			return new ServiceResult<ShowCryptoPrices>(result);
 
 		}
 

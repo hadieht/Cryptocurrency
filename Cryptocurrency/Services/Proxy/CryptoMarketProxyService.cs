@@ -1,4 +1,5 @@
-﻿using Cryptocurrency.Domain.ApiResponse;
+﻿using Cryptocurrency.Domain;
+using Cryptocurrency.Domain.ApiResponse;
 using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
 using Cryptocurrency.Domain.Enum;
@@ -8,7 +9,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -38,7 +38,7 @@ namespace Cryptocurrency.Services.Proxy
 			this.cache = cache;
 		}
 
-		public async Task<List<CryptoNameDto>> GetCryptoMap()
+		public async Task<ServiceResult<List<CryptoNameDto>>> GetCryptocurrencyList()
 		{
 			var result = new List<CryptoNameDto>();
 			try
@@ -49,7 +49,7 @@ namespace Cryptocurrency.Services.Proxy
 					if (response.StatusCode != System.Net.HttpStatusCode.OK)
 					{
 						logger.LogError($"Error on Get Crypto List with Staus Code : {response.StatusCode}");
-						return null;
+						return new ServiceResult<List<CryptoNameDto>>(new ErrorResult { Type = ErrorType.ApiCallError });
 					}
 
 					var data = await jsonSerializer.DeserializeHttpContent<CryptoMapResponse>(response.Content);
@@ -75,12 +75,13 @@ namespace Cryptocurrency.Services.Proxy
 			catch (Exception ex)
 			{
 				logger.LogError(ex, "Error on GetCryptoMap! ");
+				return new ServiceResult<List<CryptoNameDto>>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			return result;
+			return new ServiceResult<List<CryptoNameDto>>(result);
 		}
 
-		public async Task<CryptoPrices> GetCryptoLatestPrice(string symbole)
+		public async Task<ServiceResult<CryptoPrices>> GetCryptoLatestPrice(string symbole)
 		{
 			var result = new CryptoPrices();
 			try
@@ -89,28 +90,37 @@ namespace Cryptocurrency.Services.Proxy
 				if (response.StatusCode != System.Net.HttpStatusCode.OK)
 				{
 					logger.LogError($"Error on Get Get Crypto Latest Price API with Status Code : {response.StatusCode}");
-					return null;
+					return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.ApiCallError });
 				}
 
 				var json = await response.Content.ReadAsStringAsync();
 
 				var info = jsonSerializer.DeserializeByNewtonsoft<CryptocurrencyPriceResponse>(json);
+
+				if (info.DataItems == null || !info.DataItems.Any() || !info.DataItems.FirstOrDefault().Value.quotes.Any())
+				{
+					logger.LogDebug("Error on get data from price json! ");
+					return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.ApiCallError });
+				}
+
 				var mainData = info.DataItems.FirstOrDefault().Value;
-				result.Name = mainData.name;
-				result.Symbol = mainData.symbol;
-				result.LastUpdated = mainData.last_updated;
+				result.Name = mainData.Name;
+				result.Symbol = mainData.Symbol;
+				result.LastUpdated = mainData.LastUpdated;
 
 				var priceInfo = mainData.quotes.FirstOrDefault().Value;
 
-				result.Price = priceInfo.price;
-				return result;
+				result.Price = priceInfo.Price;
+
+				return new ServiceResult<CryptoPrices>(result);
+
 			}
 			catch (Exception ex)
 			{
 				logger.LogError(ex, "Error on GetCryptoLatestPrice! ");
+				return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			return null;
 		}
 
 

@@ -1,6 +1,8 @@
-﻿using Cryptocurrency.Domain.ApiResponse;
+﻿using Cryptocurrency.Domain;
+using Cryptocurrency.Domain.ApiResponse;
 using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
+using Cryptocurrency.Domain.Enum;
 using Cryptocurrency.Domain.Mapping;
 using Cryptocurrency.Shared;
 using Microsoft.Extensions.Logging;
@@ -28,18 +30,18 @@ namespace Cryptocurrency.Services.Proxy
 			this.config = config;
 		}
 
-		public async Task<ExchangeRateDto> GetExchangeRate()
+		public async Task<ServiceResult<ExchangeRateDto>> GetExchangeRate()
 		{
 			var response = await client.GetAsync(config.Value.ApiUrl).ConfigureAwait(false);
 			if (response.StatusCode != System.Net.HttpStatusCode.OK)
 			{
 				logger.LogError("Error on Get Crypto List");
-				return null;
+				return new ServiceResult<ExchangeRateDto>(new ErrorResult { Type = ErrorType.ApiCallError });
 			}
 
 			var data = await jsonSerializer.DeserializeHttpContent<ExchangeratesApiResponse>(response.Content);
 
-			return data.ToDto();
+			return new ServiceResult<ExchangeRateDto>(data.ToDto());
 
 		}
 	}
