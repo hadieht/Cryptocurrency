@@ -36,7 +36,7 @@ namespace Cryptocurrency
 			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
 			services.Configure<SupportiveCurrenciesSetting>(supportiveCurrencies);
 
-			services.AddSingleton<IJsonSerializer, JsonSerializer>();
+			services.AddSingleton<IJsonSerializer, JsonSerializer>(); // Very usefull in .net core. DI in a very easy way!
 
 			services.AddScoped<IAppMain, AppMain>();
 			services.AddScoped<ICryptoMarketProxyService, CryptoMarketProxyService>();

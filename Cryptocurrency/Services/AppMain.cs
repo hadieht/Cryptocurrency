@@ -16,12 +16,12 @@ namespace Cryptocurrency.Services
 			this.logger = logger;
 			this.cryptocurrencyDetail = cryptocurrencyDetail;
 		}
-		public async Task Start()
+		public async Task Start() // Strat app from here 
 		{
 			logger.LogDebug("Start App");
 
 			bool showMenu = true;
-			while (showMenu)
+			while (showMenu) // show console menu unit prees q
 			{
 				showMenu = await MainMenu();
 			}
@@ -36,7 +36,7 @@ namespace Cryptocurrency.Services
 				return false;
 			else
 			{
-				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input);
+				var isValid = await cryptocurrencyDetail.IsCryptoCurrencyNameValid(input); // control symbol is a valid name
 
 				if (!isValid.Success)
 				{
@@ -52,7 +52,7 @@ namespace Cryptocurrency.Services
 					return true;
 				}
 
-				if (!isValid.Result)
+				if (!isValid.Result) // show message and return to menu
 				{
 					Console.WriteLine("Enterid Symbol Not Valid!");
 					logger.LogDebug("Currency Symbol Validate failed");
@@ -60,7 +60,7 @@ namespace Cryptocurrency.Services
 					return true;
 				}
 
-				var info = await cryptocurrencyDetail.ShowCryptoPrices(input);
+				var info = await cryptocurrencyDetail.ShowCryptoPrices(input); // get data for symbol and proccess to show
 
 				if (!info.Success || info.Result == null)
 				{

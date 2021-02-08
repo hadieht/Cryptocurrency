@@ -38,14 +38,14 @@ namespace Cryptocurrency.Services
 
 			logger.LogDebug($"Validate Currency Name {symbol}");
 
-			var cryptocurrensieTitles = await cryptoMarketProxyService.GetCryptocurrencyList();
+			var cryptocurrensieTitles = await cryptoMarketProxyService.GetCryptocurrencyList(); // Get Cryptocurrency List 
 
 			if (cryptocurrensieTitles == null || !cryptocurrensieTitles.Success || cryptocurrensieTitles.Result == null)
 			{
 				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			if (cryptocurrensieTitles.Result.Where(t => t.Symbol.ToLower() == symbol).Any())
+			if (cryptocurrensieTitles.Result.Where(t => t.Symbol.ToLower() == symbol).Any()) // Is symbol exist in List?
 			{
 				return new ServiceResult<bool>(true);
 			}
@@ -63,7 +63,7 @@ namespace Cryptocurrency.Services
 
 			var result = new ShowCryptoPrices();
 
-			var exchangeRates = await exchangeRateProxyService.GetExchangeRate();
+			var exchangeRates = await exchangeRateProxyService.GetExchangeRate(); // Get latest exchange rate of currencies
 
 			if (exchangeRates == null || !exchangeRates.Success || exchangeRates.Result == null || !exchangeRates.Result.Rates.Any())
 			{
@@ -72,31 +72,31 @@ namespace Cryptocurrency.Services
 
 			logger.LogDebug($"Exchange Rate Count {exchangeRates.Result.Rates.Count()}");
 
-			var cryptoLatestData = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
+			var cryptoLatestData = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol); // Get latest price of entered symbol
 
 			if (cryptoLatestData == null || !cryptoLatestData.Success || cryptoLatestData.Result == null)
 			{
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			result.Name = cryptoLatestData.Result.Name;
+			result.Name = cryptoLatestData.Result.Name;  // create model for show in  FrontEnd
 			result.Symbol = cryptoLatestData.Result.Symbol;
 			result.LastUpdated = cryptoLatestData.Result.LastUpdated;
 			result.CurrenciesRates = new List<CurrenciesRate>();
 
 			var currencies = new List<string>();
-			if (config.Value == null || config.Value.Currencies == null || !config.Value.Currencies.Any())
+			if (config.Value == null || config.Value.Currencies == null || !config.Value.Currencies.Any()) // config dont have any currency for change
 			{
-				currencies.Add("USD"); // Default Value
+				currencies.Add("USD"); // Add Default Value
 			}
 			else
 			{
-				currencies.AddRange(config.Value?.Currencies.Split(",").ToList());
+				currencies.AddRange(config.Value?.Currencies.Split(",").ToList()); // split supportive currencies
 			}
 
 			foreach (var currency in currencies)
 			{
-				var rate = exchangeRates.Result.Rates[currency];
+				var rate = exchangeRates.Result.Rates[currency]; // find rate of  any currency
 				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * cryptoLatestData.Result.Price });
 			}
 
