@@ -4,15 +4,10 @@ using Cryptocurrency.Domain.AppConfig;
 using Cryptocurrency.Domain.Dto;
 using Cryptocurrency.Services;
 using Cryptocurrency.Services.Proxy;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
 using Moq;
-using Moq.Protected;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
