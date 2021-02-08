@@ -40,7 +40,7 @@ namespace Cryptocurrency.Services
 
 			var cryptocurrensieTitles = await cryptoMarketProxyService.GetCryptocurrencyList();
 
-			if(!cryptocurrensieTitles.Success || cryptocurrensieTitles.Result == null)
+			if (cryptocurrensieTitles == null || !cryptocurrensieTitles.Success || cryptocurrensieTitles.Result == null)
 			{
 				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
@@ -65,29 +65,39 @@ namespace Cryptocurrency.Services
 
 			var exchangeRates = await exchangeRateProxyService.GetExchangeRate();
 
-			if (!exchangeRates.Success || exchangeRates.Result == null)
+			if (exchangeRates == null || !exchangeRates.Success || exchangeRates.Result == null || !exchangeRates.Result.Rates.Any())
 			{
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
 			logger.LogDebug($"Exchange Rate Count {exchangeRates.Result.Rates.Count()}");
 
-			var cryptoCaltestInfo = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
+			var cryptoLatestData = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol);
 
-			if (!cryptoCaltestInfo.Success || cryptoCaltestInfo.Result == null)
+			if (cryptoLatestData == null || !cryptoLatestData.Success || cryptoLatestData.Result == null)
 			{
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			result.Name = cryptoCaltestInfo.Result.Name;
-			result.Symbol = cryptoCaltestInfo.Result.Symbol;
-			result.LastUpdated = cryptoCaltestInfo.Result.LastUpdated;
+			result.Name = cryptoLatestData.Result.Name;
+			result.Symbol = cryptoLatestData.Result.Symbol;
+			result.LastUpdated = cryptoLatestData.Result.LastUpdated;
 			result.CurrenciesRates = new List<CurrenciesRate>();
 
-			foreach (var currency in config.Value.Currencies.Split(","))
+			var currencies = new List<string>();
+			if (config.Value == null || config.Value.Currencies == null || !config.Value.Currencies.Any())
+			{
+				currencies.Add("USD"); // Default Value
+			}
+			else
+			{
+				currencies.AddRange(config.Value?.Currencies.Split(",").ToList());
+			}
+
+			foreach (var currency in currencies)
 			{
 				var rate = exchangeRates.Result.Rates[currency];
-				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * cryptoCaltestInfo.Result.Price });
+				result.CurrenciesRates.Add(new CurrenciesRate { Currency = currency, Price = rate * cryptoLatestData.Result.Price });
 			}
 
 			return new ServiceResult<ShowCryptoPrices>(result);
