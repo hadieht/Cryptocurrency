@@ -36,7 +36,7 @@ namespace Cryptocurrency.Services
 				return new ServiceResult<bool>(new ErrorResult { Type = ErrorType.BlankNotValid });
 			}
 
-			logger.LogDebug($"Validate Currency Name {symbol}");
+			logger.LogDebug($"Validate start Currency Name {symbol}");
 
 			var cryptocurrensieTitles = await cryptoMarketProxyService.GetCryptocurrencyList(); // Get Cryptocurrency List 
 
@@ -59,7 +59,7 @@ namespace Cryptocurrency.Services
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.BlankNotValid });
 			}
 
-			logger.LogDebug($"Show Currency Info {symbol}");
+			logger.LogDebug($"Start Showing Currency Info {symbol}");
 
 			var result = new ShowCryptoPrices();
 
@@ -70,7 +70,7 @@ namespace Cryptocurrency.Services
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			logger.LogDebug($"Exchange Rate Count {exchangeRates.Result.Rates.Count()}");
+			logger.LogDebug($"Exchange Rate Count : {exchangeRates.Result.Rates.Count()}");
 
 			var cryptoLatestData = await cryptoMarketProxyService.GetCryptoLatestPrice(symbol); // Get latest price of entered symbol
 
@@ -79,13 +79,15 @@ namespace Cryptocurrency.Services
 				return new ServiceResult<ShowCryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
-			result.Name = cryptoLatestData.Result.Name;  // create model for show in  FrontEnd
+			logger.LogDebug($"Get latest price : { cryptoLatestData.Result.Price}");
+
+			result.Name = cryptoLatestData.Result.Name;
 			result.Symbol = cryptoLatestData.Result.Symbol;
 			result.LastUpdated = cryptoLatestData.Result.LastUpdated;
 			result.CurrenciesRates = new List<CurrenciesRate>();
 
 			var currencies = new List<string>();
-			if (config.Value == null || config.Value.Currencies == null || !config.Value.Currencies.Any()) // config dont have any currency for change
+			if (config.Value == null || config.Value.Currencies == null || !config.Value.Currencies.Any())
 			{
 				currencies.Add("USD"); // Add Default Value
 			}

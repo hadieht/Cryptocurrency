@@ -54,7 +54,7 @@ namespace Cryptocurrency.Services.Proxy
 
 					var cryptoList = await jsonSerializer.DeserializeHttpContent<CryptoMapResponse>(apiResponse.Content);
 
-					logger.LogDebug($"Executing GetCryptoMap: {cryptoList.Data?.Count()}.");
+					logger.LogDebug($"Get creypto List, Crypto Count : {cryptoList.Data?.Count()}.");
 
 					result = cryptoList.Data.Select(a => new CryptoNameDto
 					{
@@ -62,8 +62,7 @@ namespace Cryptocurrency.Services.Proxy
 						Name = a.Name
 					}).ToList();
 
-
-					logger.LogDebug("Set crypto list In cache data");
+					logger.LogDebug("Cache , Insert crypto list");
 
 					cache.Set(CacheKey.CryptocurrencyList, result);
 				}
@@ -71,7 +70,7 @@ namespace Cryptocurrency.Services.Proxy
 			}
 			catch (Exception ex)
 			{
-				logger.LogError(ex, "Error on GetCryptoMap! ");
+				logger.LogError(ex, "Error on Get Crypto List ");
 				return new ServiceResult<List<CryptoNameDto>>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
@@ -80,7 +79,7 @@ namespace Cryptocurrency.Services.Proxy
 
 		public async Task<ServiceResult<CryptoPrices>> GetCryptoLatestPrice(string symbole)
 		{
-			if(string.IsNullOrWhiteSpace(symbole))
+			if (string.IsNullOrWhiteSpace(symbole))
 			{
 				return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.BlankNotValid });
 			}
@@ -102,7 +101,7 @@ namespace Cryptocurrency.Services.Proxy
 
 				if (cryptoLatestInfo.DataItems == null || !cryptoLatestInfo.DataItems.Any() || !cryptoLatestInfo.DataItems.FirstOrDefault().Value.quotes.Any())
 				{
-					logger.LogDebug("Error on get data from price json! ");
+					logger.LogDebug($"Error on get data from price json data : {json} ");
 					return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.ApiCallError });
 				}
 
@@ -120,7 +119,7 @@ namespace Cryptocurrency.Services.Proxy
 			}
 			catch (Exception ex)
 			{
-				logger.LogError(ex, "Error on GetCryptoLatestPrice! ");
+				logger.LogError(ex, "Error on Get Crypto Latest Price! ");
 				return new ServiceResult<CryptoPrices>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 

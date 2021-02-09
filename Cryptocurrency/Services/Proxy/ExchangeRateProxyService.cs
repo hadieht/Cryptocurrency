@@ -35,7 +35,7 @@ namespace Cryptocurrency.Services.Proxy
 			var apiResponse = await client.GetAsync(config.Value.ApiUrl).ConfigureAwait(false);
 			if (apiResponse.StatusCode != System.Net.HttpStatusCode.OK)
 			{
-				logger.LogError("Error on Get Crypto List");
+				logger.LogError($"Error on Get Exchange Rate with status code {apiResponse.StatusCode}");
 				return new ServiceResult<ExchangeRateDto>(new ErrorResult { Type = ErrorType.ApiCallError });
 			}
 
