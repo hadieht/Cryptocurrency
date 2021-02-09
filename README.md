@@ -45,7 +45,7 @@ docker build -t cryptoimage:latest .
 
 Run :
 ```
-docker run -it --rm cryptoimage:latest
+docker run -it cryptoimage:latest
 
 ```
 
