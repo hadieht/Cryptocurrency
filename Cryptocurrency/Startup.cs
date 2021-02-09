@@ -2,7 +2,6 @@
 using Cryptocurrency.Services;
 using Cryptocurrency.Services.Proxy;
 using Cryptocurrency.Shared;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
@@ -18,14 +17,11 @@ namespace Cryptocurrency
 			var config = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory());
 			config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 			Configuration = config.Build();
-
-
 		}
+
 		public static ServiceProvider ConfigureServices()
 		{
 			var services = new ServiceCollection();
-
-			services.AddHttpClient();
 
 			var coinMarketCapSettingSection = Configuration.GetSection("CoinMarketCapSetting");
 			services.Configure<CoinMarketCapSetting>(coinMarketCapSettingSection);
@@ -36,7 +32,7 @@ namespace Cryptocurrency
 			var supportiveCurrencies = Configuration.GetSection("SupportiveCurrencies");
 			services.Configure<SupportiveCurrenciesSetting>(supportiveCurrencies);
 
-			services.AddSingleton<IJsonSerializer, JsonSerializer>(); // Very usefull in .net core. DI in a very easy way!
+			services.AddSingleton<IJsonSerializer, JsonSerializer>(); 
 
 			services.AddScoped<IAppMain, AppMain>();
 			services.AddScoped<ICryptoMarketProxyService, CryptoMarketProxyService>();
@@ -46,6 +42,7 @@ namespace Cryptocurrency
 			var serilogLogger = new LoggerConfiguration()
 																									.ReadFrom.Configuration(Configuration)
 																									.CreateLogger();
+			services.AddHttpClient();
 			services.AddMemoryCache();
 			services.AddLogging(builder =>
 			{

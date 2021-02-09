@@ -70,7 +70,7 @@ namespace Cryptocurrency.Services.Proxy
 			}
 			catch (Exception ex)
 			{
-				logger.LogError(ex, "Error on Get Crypto List ");
+				logger.LogError(ex, "Error on Get Crypto List!");
 				return new ServiceResult<List<CryptoNameDto>>(new ErrorResult { Type = ErrorType.GeneralError });
 			}
 
