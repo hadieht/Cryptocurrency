@@ -1,6 +1,6 @@
 ## 1. How long did you spend on the coding assignment? What would you add to your solution if you had more time? If you didn't spend much time on the coding assignment then use this as an opportunity to explain what you would add.
 
-I spent about 17 hours. If I have time, I’d add middleware for API invoke to record API response time, and then I’d try to find out how much time takes to update the exchange rate of currencies and then I’d use Cache to decrease API call times.
+I spent about 16 hours. If I have time, I’d add middleware for API invoke to record API response time, and then I’d try to find out how much time takes to update the exchange rate of currencies and then I’d use Cache to decrease API call times.
 
 ## 2. What was the most useful feature that was added to the latest version of your language of choice? Please include a snippet of code that shows how you've used it.
 I think the biggest one is cross-platform .Net core. We can host and run .Net core in Linux, Windows, and Mac without any difficulty. And also use Docker to build and run apps.
